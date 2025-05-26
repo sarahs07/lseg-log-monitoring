@@ -1,0 +1,16 @@
+{
+  "name": "log-monitoring-app",
+  "version": "1.0.0",
+  "description": "This application reads the log file, measures how long each job takes from start to finish and reports if the processing time exceeds certain thresholds.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "serve": "tsc; node dist/index.js"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "typescript": "^5.8.3"
+  },
+  "author": "Sarah Saad",
+  "license": "ISC"
+}
