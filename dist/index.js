@@ -56,7 +56,7 @@ var LogsMonitoring = /** @class */ (function () {
     }
     LogsMonitoring.prototype.processLogs = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var data, jobs;
+            var jobs, data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.readLogFile()];
@@ -120,8 +120,15 @@ var LogsMonitoring = /** @class */ (function () {
         return end - start;
     };
     LogsMonitoring.prototype.generateReport = function (jobs) {
-        jobs.forEach(function (job) {
-            console.log(job.duration);
+        jobs.forEach(function (job, key) {
+            var durationMinutes = job.duration / 60;
+            if (durationMinutes > 10) {
+                console.error("Job ".concat(key, " took more than 10 mins"));
+                return;
+            }
+            if (durationMinutes > 5) {
+                console.warn("Job ".concat(key, " took more than 5 mins"));
+            }
         });
     };
     return LogsMonitoring;

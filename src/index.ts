@@ -9,12 +9,13 @@ class LogsMonitoring {
   }
 
   async processLogs() {
+    let jobs;
     // Read logfile asynchronously
     const data = await this.readLogFile();
 
     // Process file data
     if (typeof data === "string") {
-      const jobs = this.processLogEntries(data);
+      jobs = this.processLogEntries(data);
     }
 
     // Check start and finish time to check for trushhold breaches.
@@ -85,8 +86,17 @@ class LogsMonitoring {
   }
 
   private generateReport(jobs) {
-    jobs.forEach((job) => {
-      console.log(job.duration);
+    jobs.forEach((job, key) => {
+      const durationMinutes = job.duration / 60;
+
+      if (durationMinutes > 10) {
+        console.error(`Job ${key} took more than 10 mins`);
+        return;
+      }
+
+      if (durationMinutes > 5) {
+        console.warn(`Job ${key} took more than 5 mins`);
+      }
     });
   }
 }
