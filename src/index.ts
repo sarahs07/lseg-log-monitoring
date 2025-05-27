@@ -1,26 +1,32 @@
 import * as fs from "fs";
 import * as path from "path";
+import { getDuration, parseTime } from "./utils/utils";
 
-class LogsMonitoring {
+export class LogsMonitoring {
   filePath: string | undefined = undefined;
 
   constructor(filePath) {
     this.filePath = filePath;
   }
 
-  async processLogs() {
-    let jobs;
-    // Read logfile asynchronously
-    const data = await this.readLogFile();
+  public async processLogs() {
+    try {
+      let jobs, data;
+      // Read logfile asynchronously
+      data = await this.readLogFile();
 
-    // Process file data
-    if (typeof data === "string") {
-      jobs = this.processLogEntries(data);
+      // Process file data
+      if (typeof data === "string" && data.length > 0) {
+        jobs = this.processLogEntries(data);
+      } else {
+        throw "Logs file is empty";
+      }
+      console.log(">>jobs", jobs);
+      // Check start and finish time to check for trushhold breaches.
+      this.generateReport(jobs);
+    } catch (e) {
+      throw `Error in processLogs: ${e}`;
     }
-
-    // Check start and finish time to check for trushhold breaches.
-
-    this.generateReport(jobs);
   }
 
   private readLogFile(): Promise<string | Error> {
@@ -35,7 +41,9 @@ class LogsMonitoring {
     });
   }
 
-  private processLogEntries(data: string) {
+  private processLogEntries(
+    data: string
+  ): Map<string, Record<string, string | number>> {
     const entries = data.trim().split("\n");
 
     const map = new Map();
@@ -50,7 +58,7 @@ class LogsMonitoring {
         map.set(pid, {
           timeString,
           description,
-          startTime: this.parseTime(timeString),
+          startTime: parseTime(timeString),
         });
       }
 
@@ -59,30 +67,14 @@ class LogsMonitoring {
         if (entry) {
           map.set(pid, {
             ...entry,
-            endTime: this.parseTime(timeString),
-            duration: this.getDuration(
-              this.parseTime(timeString),
-              entry.startTime
-            ),
+            endTime: parseTime(timeString),
+            duration: getDuration(parseTime(timeString), entry.startTime),
           });
         }
       }
     });
 
-    //console.log(">>map", map);
     return map;
-  }
-
-  private parseTime(timeString: string) {
-    const [hours, minutes, seconds] = timeString
-      .split(":")
-      .map((value) => Number(value));
-
-    return hours * 3600 + minutes * 60 + seconds;
-  }
-
-  private getDuration(end, start) {
-    return end - start;
   }
 
   private generateReport(jobs) {
