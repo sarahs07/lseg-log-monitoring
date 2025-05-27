@@ -1,4 +1,4 @@
-This is a basic implementation of a log file monitoring to report if any of the jobs go over the thurshold limits of 5 or 10 mins. 
+This is a basic implementation of a log file monitoring to report if any of the jobs go over the threshold limits of 5 or 10 mins. 
 
 **Usage: **
 
